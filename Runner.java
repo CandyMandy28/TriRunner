@@ -9,7 +9,7 @@ public class Runner {
 	public double position;
 	private double t1time;
 	private double t2time;
-	public double nextTravel;	//How much the runner will travel in the next step (10 seconds)
+	public double nextTravel;	//How much the runner will travel in the next step
 	private int t1count;		//How many steps the runner stays at transition 1
 	private int t2count;		//How many steps the runner stays at transition 2
 	
@@ -25,6 +25,8 @@ public class Runner {
 	private int step;			//Length of time between updates
 	
 	
+	private int stepNumber;
+	private int expectedStepNumber;
 	
 	//Need to add timers and shit in order to measure the time spent and the distance lost in congestion yeah...
 	
@@ -32,7 +34,7 @@ public class Runner {
 	
 	Random rand =  new Random();
 	
-	public Runner(String classname, int steplength){
+	public Runner(String classname, int steplength){	//Initializes all the speed variables and transition times randomly based on class average and standard deviation
 		
 		double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10;
 		
@@ -154,13 +156,14 @@ public class Runner {
 		double runtime = rand.nextGaussian()*d10+d9;
 		runspeed = 10000 / runtime;
 		step = steplength;
+		
 	}
 	
-	public void printStats(){
+	public void printStats(){	//Prints the speeds, class, and position
 		System.out.println(classname + " " + swimspeed + " " + bikespeed + " " + runspeed + " " + position);
 	}
 
-	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step (10 seconds), stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1.
+	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step, stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1.
 		double travelDistance = 0;
 		if(position < 1500){
 			double speed = Math.min(swimspeed,maxCongestionSpeed(runners));
@@ -199,6 +202,7 @@ public class Runner {
 	
 	public void timestep(){		//Advances the position of the runner
 		position += nextTravel;
+		stepNumber++;
 	}
 	
 	private double maxCongestionSpeed(double[][]runners){	//calculates the maximum speed a runner can travel given the congestion, relates to average running speed of those in front of them.
