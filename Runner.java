@@ -157,15 +157,16 @@ public class Runner {
 		runspeed = 10000 / runtime;
 		step = steplength;
 		
+		expectedStepNumber = t1count + t2count + (int)(1500/swimspeed + 1) + (int)(40000/bikespeed + 1) + (int)(10000/runspeed + 1);
 	}
 	
 	public void printStats(){	//Prints the speeds, class, and position
 		System.out.println(classname + " " + swimspeed + " " + bikespeed + " " + runspeed + " " + position);
 	}
 
-	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step, stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1.
-		double travelDistance = 0;
-		if(position < 1500){
+	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step, stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1. If finished, returns -1
+		double travelDistance = -1;
+		if(position <= 1500){
 			double speed = Math.min(swimspeed,maxCongestionSpeed(runners));
 			travelDistance = Math.min(step*speed, 1500-position);
 		}
@@ -197,6 +198,7 @@ public class Runner {
 				travelDistance = Math.min(step*speed, 51500-position);
 			}
 		}
+		
 		return travelDistance;
 	}
 	
@@ -219,21 +221,21 @@ public class Runner {
 				maxSpeed = avgvelocity;
 			}
 		}
-		else if(position > 1500 && position < 41500){
+		else if(position <= 1500){
 			maxSpeed = avgvelocity + 1.7;
-			if(density < uloDensityRun && density > lloDensityRun){
-				maxSpeed = avgvelocity + 1.7 * Math.pow((uloDensityRun-density)/(uloDensityRun-lloDensityRun),2);
+			if(density < uloDensitySwim && density > lloDensitySwim){
+				maxSpeed = avgvelocity + 1.7 * Math.pow((uloDensitySwim-density)/(uloDensitySwim-lloDensitySwim),2);
 			}
-			else if (density >= uloDensityRun){
+			else if (density >= uloDensitySwim){
 				maxSpeed = avgvelocity;
 			}
 		}
-		else if(position > 41500 && position < 51500){
+		else if(position > 1500 && position < 41500){
 			maxSpeed = avgvelocity + 9;
-			if(density < uloDensityRun && density > lloDensityRun){
-				maxSpeed = avgvelocity + 9 * Math.pow((uloDensityRun-density)/(uloDensityRun-lloDensityRun),2);
+			if(density < uloDensitySwim && density > lloDensitySwim){
+				maxSpeed = avgvelocity + 9 * Math.pow((uloDensitySwim-density)/(uloDensitySwim-lloDensitySwim),2);
 			}
-			else if (density >= uloDensityRun){
+			else if (density >= uloDensitySwim){
 				maxSpeed = avgvelocity;
 			}
 		}
@@ -268,5 +270,9 @@ public class Runner {
 		returnThis[0] = density;
 		returnThis[1] = averageSpeed;
 		return returnThis;
+	}
+
+	public int stepDifference(){				//returns the difference between the number of expected steps with no congestion and the number of steps with it.
+		return stepNumber-expectedStepNumber;
 	}
 }
