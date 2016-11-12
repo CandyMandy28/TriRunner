@@ -193,7 +193,24 @@ public class Runner {
 		
 	}
 	
-	public int runnerDensity(double[][]runners){	//returns the number of runners in the space "" meters in front of the runner
-		
+	public double runnerDensity(double[][]runners){	//returns the density of runners in the space step seconds in front of the runner. Runners lists all runners' positions and run speeds.
+		double scanningDistance = 0;
+		if(position < 1500){
+			scanningDistance = Math.min(step * swimspeed, 1500-position);	
+		}
+		else if(position > 1500 && position < 41500){
+			scanningDistance = Math.min(step * bikespeed, 1500-position);	
+		}
+		else if(position > 41500 && position < 541500){
+			scanningDistance = Math.min(step * runspeed, 1500-position);	
+		}
+		int runnerCounter = 0;
+		for(int counter = 0; counter < runners.length; counter++){
+			if (runners[counter][0] > position && runners[counter][0] < position + scanningDistance){
+				runnerCounter++;
+			}
+		}
+		double density = runnerCounter/scanningDistance;
+		return density;
 	}
 }
