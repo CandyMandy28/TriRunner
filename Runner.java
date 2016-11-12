@@ -12,6 +12,16 @@ public class Runner {
 	public double nextTravel;	//How much the runner will travel in the next step (10 seconds)
 	private int t1count;		//How many steps the runner stays at transition 1
 	private int t2count;		//How many steps the runner stays at transition 2
+	
+	
+	
+	
+	private double lloDensityRun = 1.6;	//What Density of people/m do we start getting slowdown (assuming 20 foot wide road)
+	private double lloDensitySwim = 0.8;
+	private double lloDensityBike = 0.8;
+	private double uloDensityRun = 6;		//What Density of people/m do can we not traverse (assuming 20 foot wide road)) 
+	private double uloDensitySwim = 3;
+	private double uloDensityBike = 3;
 	private int step;			//Length of time between updates
 	
 	
@@ -130,7 +140,7 @@ public class Runner {
 		if(t1time < 0){
 			t1time = 0;
 		}
-		t1count = (int)Math.round(t1time/10);
+		t1count = (int)Math.round(t1time/step);
 		
 		double biketime = rand.nextGaussian()*d6+d5;
 		bikespeed = 40000 / biketime;
@@ -139,7 +149,7 @@ public class Runner {
 		if(t2time < 0){
 			t2time = 0;
 		}
-		t2count = (int)Math.round(t2time/10);
+		t2count = (int)Math.round(t2time/step);
 		
 		double runtime = rand.nextGaussian()*d10+d9;
 		runspeed = 10000 / runtime;
@@ -167,6 +177,7 @@ public class Runner {
 		else if(position == 1500){
 			if(t1count > 0){
 				t1count--;
+				travelDistance = 0;
 			}
 			else{
 				double speed = Math.min(bikespeed,maxCongestionSpeed(runners));
@@ -176,6 +187,7 @@ public class Runner {
 		else if(position == 41500){
 			if(t2count > 0){
 				t2count--;
+				travelDistance = 0;
 			}
 			else{
 				double speed = Math.min(runspeed,maxCongestionSpeed(runners));
@@ -189,11 +201,42 @@ public class Runner {
 		position += nextTravel;
 	}
 	
-	private double maxCongestionSpeed(double[][]runners){	//calculates the maximum speed a runner can travel given the congestion
-		
+	private double maxCongestionSpeed(double[][]runners){	//calculates the maximum speed a runner can travel given the congestion, relates to average running speed of those in front of them.
+		double[]temp = runnerDensitySpeed(runners);
+		double density = temp[0];
+		double avgvelocity = temp[1];
+		double maxSpeed = 100;
+		if(position > 41500 && position < 51500){
+			maxSpeed = avgvelocity + 3.9;
+			if(density < uloDensityRun && density > lloDensityRun){
+				maxSpeed = avgvelocity + 3.9 * Math.pow((uloDensityRun-density)/(uloDensityRun-lloDensityRun),2);
+			}
+			else if (density >= uloDensityRun){
+				maxSpeed = avgvelocity;
+			}
+		}
+		else if(position > 1500 && position < 41500){
+			maxSpeed = avgvelocity + 1.7;
+			if(density < uloDensityRun && density > lloDensityRun){
+				maxSpeed = avgvelocity + 1.7 * Math.pow((uloDensityRun-density)/(uloDensityRun-lloDensityRun),2);
+			}
+			else if (density >= uloDensityRun){
+				maxSpeed = avgvelocity;
+			}
+		}
+		else if(position > 41500 && position < 51500){
+			maxSpeed = avgvelocity + 9;
+			if(density < uloDensityRun && density > lloDensityRun){
+				maxSpeed = avgvelocity + 9 * Math.pow((uloDensityRun-density)/(uloDensityRun-lloDensityRun),2);
+			}
+			else if (density >= uloDensityRun){
+				maxSpeed = avgvelocity;
+			}
+		}
+		return maxSpeed;
 	}
 	
-	public double runnerDensity(double[][]runners){	//returns the density of runners in the space step seconds in front of the runner. Runners lists all runners' positions and run speeds.
+	public double[] runnerDensitySpeed(double[][]runners){	//returns the density of runners and their average speed in the step seconds in front of the runner. Runners lists all runners' positions and run speeds.
 		double scanningDistance = 0;
 		if(position < 1500){
 			scanningDistance = Math.min(step * swimspeed, 1500-position);	
@@ -205,12 +248,21 @@ public class Runner {
 			scanningDistance = Math.min(step * runspeed, 1500-position);	
 		}
 		int runnerCounter = 0;
+		double runnerSpeed = 0;
 		for(int counter = 0; counter < runners.length; counter++){
 			if (runners[counter][0] > position && runners[counter][0] < position + scanningDistance){
-				runnerCounter++;
+				runnerCounter ++;
+				runnerSpeed += runners[counter][1];
 			}
 		}
 		double density = runnerCounter/scanningDistance;
-		return density;
+		double averageSpeed = 10000000;
+		if(runnerCounter != 0){
+			averageSpeed = runnerSpeed/runnerCounter;
+		}
+		double[]returnThis = new double[2];
+		returnThis[0] = density;
+		returnThis[1] = averageSpeed;
+		return returnThis;
 	}
 }
