@@ -1,32 +1,15 @@
 import java.util.Random;
 
 public class Runner {
-
-	private String classname;
-	private double swimspeed;
-	private double runspeed;
-	private double bikespeed;
-	public double position;
-	private double t1time;
-	private double t2time;
-	public double nextTravel;	//How much the runner will travel in the next step (10 seconds)
-	private int t1count;		//How many steps the runner stays at transition 1
-	private int t2count;		//How many steps the runner stays at transition 2
-	private int step;			//Length of time between updates
-	
-	
-	
 	//Need to add timers and shit in order to measure the time spent and the distance lost in congestion yeah...
-	
-	
-	
+
 	Random rand =  new Random();
 	
 	public Runner(String classname, int steplength){
 		
 		double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10;
 		
-		if(classname.equals("ATH")){
+		if(classname.equalsIgnoreCase("ATH")){
 			d1 = 1404.9375;
 			d2 = 210.132092;
 			d3 = 697.96875;
@@ -38,7 +21,7 @@ public class Runner {
 			d9 = 4645.536875;
 			d10 = 823.6366583;
 		}
-		else if(classname.equals("CLY")){
+		else if(classname.equalsIgnoreCase("CLY")){
 			d1 = 1537.616667;
 			d2 = 228.0364073;
 			d3 = 482.6666667;
@@ -50,7 +33,7 @@ public class Runner {
 			d9 = 4280.767167;
 			d10 = 817.0947949;
 		}
-		else if(classname.equals("FOPEN")){
+		else if(classname.equalsIgnoreCase("FOPEN")){
 			d1 = 1349.106904;
 			d2 = 201.2769749;
 			d3 = 601.8674833;
@@ -62,7 +45,7 @@ public class Runner {
 			d9 = 3741.610457;
 			d10 = 704.0984312;
 		}
-		else if(classname.equals("FPREMIER")){
+		else if(classname.equalsIgnoreCase("FPREMIER")){
 			d1 = 1021.777778;
 			d2 = 81.42928463;
 			d3 = 297.1111111;
@@ -74,7 +57,7 @@ public class Runner {
 			d9 = 2647.816111;
 			d10 = 218.4670151;
 		}
-		else if(classname.equals("FPRO")){
+		else if(classname.equalsIgnoreCase("FPRO")){
 			d1 = 778.1666667;
 			d2 = 19.59946144;
 			d3 = 218.1666667;
@@ -86,7 +69,7 @@ public class Runner {
 			d9 = 2298.666667;
 			d10 = 108.6549073;
 		}
-		else if(classname.equals("MOPEN")){
+		else if(classname.equalsIgnoreCase("MOPEN")){
 			d1 = 1400.34653;
 			d2 = 256.449216;
 			d3 = 457.5328365;
@@ -98,7 +81,7 @@ public class Runner {
 			d9 = 3559.92463;
 			d10 = 694.8203805;
 		}
-		else if(classname.equals("MPREMIER")){
+		else if(classname.equalsIgnoreCase("MPREMIER")){
 			d1 = 1000.306122;
 			d2 = 84.67662475;
 			d3 = 263.755102;
@@ -146,11 +129,26 @@ public class Runner {
 		step = steplength;
 	}
 	
+	public double getBikeSpeed(){
+		return bikespeed;
+	}
+	
+	public double getRunSpeed(){
+		return runspeed;
+	}
+	
+	public double getSwimSpeed(){
+		return swimspeed;
+	}
+	
 	public void printStats(){
-		System.out.println(classname + " " + swimspeed + " " + bikespeed + " " + runspeed + " " + position);
+		System.out.println("Group:\t" + classname + "\nSwim speed:\t" + swimspeed + "\nBike speed:\t" + bikespeed + "\nRun speed:\t" + runspeed + "\nPosition:\t" + position);
 	}
 
-	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step (10 seconds), stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1.
+//	Calculate how far this will move in the next step (10 seconds)
+//	stores and returns it.	
+//	If at a transition, remains stationary but decreases number of the step count by 1.
+	public double calcTravel(double[][]runners){	
 		double travelDistance = 0;
 		if(position < 1500){
 			double speed = Math.min(swimspeed,maxCongestionSpeed(runners));
@@ -185,15 +183,19 @@ public class Runner {
 		return travelDistance;
 	}
 	
-	public void timestep(){		//Advances the position of the runner
+	//Advances the position of the runner
+	public void timestep(){		
 		position += nextTravel;
 	}
 	
-	private double maxCongestionSpeed(double[][]runners){	//calculates the maximum speed a runner can travel given the congestion
+	//calculates the maximum speed a runner can travel given the congestion
+	private double maxCongestionSpeed(double[][]runners){	
 		
 	}
 	
-	public double runnerDensity(double[][]runners){	//returns the density of runners in the space step seconds in front of the runner. Runners lists all runners' positions and run speeds.
+	//returns the density of runners in the space step seconds in front of the runner.
+//	Runners lists all runners' positions and run speeds.
+	public double runnerDensity(double[][]runners){	
 		double scanningDistance = 0;
 		if(position < 1500){
 			scanningDistance = Math.min(step * swimspeed, 1500-position);	
@@ -213,4 +215,16 @@ public class Runner {
 		double density = runnerCounter/scanningDistance;
 		return density;
 	}
+	
+	private String classname;
+	private double swimspeed;
+	private double runspeed;
+	private double bikespeed;
+	public double position;
+	private double t1time;
+	private double t2time;
+	public double nextTravel;	//How much the runner will travel in the next step (10 seconds)
+	private int t1count;		//How many steps the runner stays at transition 1
+	private int t2count;		//How many steps the runner stays at transition 2
+	private int step;			//Length of time between updates
 }
