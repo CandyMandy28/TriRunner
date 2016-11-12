@@ -2,17 +2,27 @@ import java.util.Random;
 
 public class Runner {
 
-	String classname;
-	double swimspeed;
-	double runspeed;
-	double bikespeed;
-	double position;
-	double t1time;
-	double t2time;
+	private String classname;
+	private double swimspeed;
+	private double runspeed;
+	private double bikespeed;
+	public double position;
+	private double t1time;
+	private double t2time;
+	public double nextTravel;	//How much the runner will travel in the next step (10 seconds)
+	private int t1count;		//How many steps the runner stays at transition 1
+	private int t2count;		//How many steps the runner stays at transition 2
+	private int step;			//Length of time between updates
+	
+	
+	
+	//Need to add timers and shit in order to measure the time spent and the distance lost in congestion yeah...
+	
+	
 	
 	Random rand =  new Random();
 	
-	public Runner(String classname){
+	public Runner(String classname, int steplength){
 		
 		double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10;
 		
@@ -120,6 +130,7 @@ public class Runner {
 		if(t1time < 0){
 			t1time = 0;
 		}
+		t1count = (int)Math.round(t1time/10);
 		
 		double biketime = rand.nextGaussian()*d6+d5;
 		bikespeed = 40000 / biketime;
@@ -128,13 +139,61 @@ public class Runner {
 		if(t2time < 0){
 			t2time = 0;
 		}
+		t2count = (int)Math.round(t2time/10);
 		
 		double runtime = rand.nextGaussian()*d10+d9;
 		runspeed = 10000 / runtime;
+		step = steplength;
 	}
 	
 	public void printStats(){
-		System.out.println(classname + "" );
+		System.out.println(classname + " " + swimspeed + " " + bikespeed + " " + runspeed + " " + position);
+	}
+
+	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step (10 seconds), stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1.
+		double travelDistance = 0;
+		if(position < 1500){
+			double speed = Math.min(swimspeed,maxCongestionSpeed(runners));
+			travelDistance = Math.min(step*speed, 1500-position);
+		}
+		else if(1500 < position && position < 41500){
+			double speed = Math.min(bikespeed,maxCongestionSpeed(runners));
+			travelDistance = Math.min(step*speed, 41500-position);
+		}
+		else if(41500 < position && position < 51500){
+			double speed = Math.min(runspeed,maxCongestionSpeed(runners));
+			travelDistance = Math.min(step*speed, 51500-position);
+		}
+		else if(position == 1500){
+			if(t1count > 0){
+				t1count--;
+			}
+			else{
+				double speed = Math.min(bikespeed,maxCongestionSpeed(runners));
+				travelDistance = Math.min(step*speed, 41500-position);
+			}
+		}
+		else if(position == 41500){
+			if(t2count > 0){
+				t2count--;
+			}
+			else{
+				double speed = Math.min(runspeed,maxCongestionSpeed(runners));
+				travelDistance = Math.min(step*speed, 51500-position);
+			}
+		}
+		return travelDistance;
 	}
 	
+	public void timestep(){		//Advances the position of the runner
+		position += nextTravel;
+	}
+	
+	private double maxCongestionSpeed(double[][]runners){	//calculates the maximum speed a runner can travel given the congestion
+		
+	}
+	
+	public int runnerDensity(double[][]runners){	//returns the number of runners in the space "" meters in front of the runner
+		
+	}
 }
