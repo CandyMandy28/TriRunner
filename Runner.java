@@ -1,8 +1,12 @@
+import java.util.Arrays;
 import java.util.Random;
 
 public class Runner {
-
-	private String classname;
+	
+	private int swimDistance;
+	private int bikeSumDistance;
+	private int runSumDistance;
+	public String classname;
 	private double swimspeed;
 	private double runspeed;
 	private double bikespeed;
@@ -40,12 +44,16 @@ public class Runner {
 
 	Random rand =  new Random();
 	
-	public Runner(String classname, double steplength){	//Initializes all the speed variables and transition times randomly based on class average and standard deviation
+	public Runner(String classnamer, double steplength, int swimDistances, int bikeSumDistances, int runSumDistances){	//Initializes all the speed variables and transition times randomly based on class average and standard deviation
+		
+		swimDistance = swimDistances;
+		bikeSumDistance = bikeSumDistances;
+		runSumDistance = runSumDistances;
 		
 		double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10;
+		classname = classnamer;
 		
 		if(classname.equalsIgnoreCase("ATH")){
-			
 			d1 = 1404.9375;
 			d2 = 210.132092;
 			d3 = 697.96875;
@@ -57,8 +65,7 @@ public class Runner {
 			d9 = 4645.536875;
 			d10 = 823.6366583;
 			
-			
-			/* NO VARIANCE
+			/* //NO VARIANCE
 			d1 = 1404.9375;
 			d2 = 0;
 			d3 = 697.96875;
@@ -178,7 +185,7 @@ public class Runner {
 		runspeed = 10000 / runtime;
 		step = steplength;
 		
-		expectedStepNumber = t1count + t2count + (int)(1500/(swimspeed*step) + 1) + (int)(40000/(bikespeed*step) + 1) + (int)(10000/(runspeed*step) + 1);
+		expectedStepNumber = 1 + t1count + t2count + (int)(swimDistance/(swimspeed*step) + 1) + (int)((bikeSumDistance - swimDistance)/(bikespeed*step) + 1) + (int)((runSumDistance - bikeSumDistance)/(runspeed*step) + 1);
 	}
 
 	public double getBikeSpeed(){
@@ -200,36 +207,36 @@ public class Runner {
 	//Calculate how far this will move in the next step, stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1. If finished, returns -1
 	public double calcTravel(double[][]runners){	
 		double travelDistance = -1;
-		if(position < 1500){
+		if(position < swimDistance){
 			double speed = Math.min(swimspeed,maxCongestionSpeed(runners));
-			travelDistance = Math.min(step*speed, 1500-position);
+			travelDistance = Math.min(step*speed, swimDistance-position);
 		}
-		else if(1500 < position && position < 41500){
+		else if(swimDistance < position && position < bikeSumDistance){
 			double speed = Math.min(bikespeed,maxCongestionSpeed(runners));
-			travelDistance = Math.min(step*speed, 41500-position);
+			travelDistance = Math.min(step*speed, bikeSumDistance-position);
 		}
-		else if(41500 < position && position < 51500){
+		else if(bikeSumDistance < position && position < runSumDistance){
 			double speed = Math.min(runspeed,maxCongestionSpeed(runners));
-			travelDistance = Math.min(step*speed, 51500-position);
+			travelDistance = Math.min(step*speed, runSumDistance-position);
 		}
-		else if(position == 1500){
+		else if(position == swimDistance){
 			if(t1count > 0){
 				t1count--;
 				travelDistance = 0;
 			}
 			else{
 				double speed = Math.min(bikespeed,maxCongestionSpeed(runners));
-				travelDistance = Math.min(step*speed, 41500-position);
+				travelDistance = Math.min(step*speed, bikeSumDistance-position);
 			}
 		}
-		else if(position == 41500){
+		else if(position == bikeSumDistance){
 			if(t2count > 0){
 				t2count--;
 				travelDistance = 0;
 			}
 			else{
 				double speed = Math.min(runspeed,maxCongestionSpeed(runners));
-				travelDistance = Math.min(step*speed, 51500-position);
+				travelDistance = Math.min(step*speed, runSumDistance-position);
 			}
 		}
 		nextTravel = travelDistance;
@@ -243,12 +250,12 @@ public class Runner {
 	}
 	
 	//calculates the maximum speed a runner can travel given the congestion, relates to average running speed of those in front of them.
-	private double maxCongestionSpeed(double[][]runners){	
+	/*private double maxCongestionSpeed(double[][]runners){	
 		double[]temp = runnerDensitySpeed(runners);
 		double density = temp[0];
 		double avgvelocity = temp[1];
 		double maxSpeed = 100;
-		if(position > 41500 && position < 51500){
+		if(position > runSumDistance && position < runSumDistance){
 			maxSpeed = avgvelocity + 3.9;
 			if(density < uloDensityRun && density > lloDensityRun){
 				maxSpeed = avgvelocity + 3.9 * Math.pow((uloDensityRun-density)/(uloDensityRun-lloDensityRun),2);
@@ -257,7 +264,7 @@ public class Runner {
 				maxSpeed = avgvelocity;
 			}
 		}
-		else if(position <= 1500){
+		else if(position <= runSumDistance){
 			maxSpeed = avgvelocity + 1.7;
 			if(density < uloDensitySwim && density > lloDensitySwim){
 				maxSpeed = avgvelocity + 1.7 * Math.pow((uloDensitySwim-density)/(uloDensitySwim-lloDensitySwim),2);
@@ -266,7 +273,7 @@ public class Runner {
 				maxSpeed = avgvelocity;
 			}
 		}
-		else if(position > 1500 && position < 41500){
+		else if(position > runSumDistance && position < runSumDistance){
 			maxSpeed = avgvelocity + 9;
 			if(density < uloDensityBike && density > lloDensityBike){
 				maxSpeed = avgvelocity + 9 * Math.pow((uloDensityBike-density)/(uloDensityBike-lloDensityBike),2);
@@ -276,37 +283,62 @@ public class Runner {
 			}
 		}
 		return maxSpeed;
-	}
+	}*/
 	
 	//returns the density of runners and their average speed in the step seconds in front of the runner. Runners lists all runners' positions and run speeds.
-	public double[] runnerDensitySpeed(double[][]runners){	
+	public double maxCongestionSpeed(double[][]runners){	
 		double scanningDistance = 0;
-		if(position < 1500){
-			scanningDistance = Math.min(forwardTime * swimspeed, 1500-position);
+		int discardedRunners = 0;
+		int maxRunners = 0;
+		double maxSpeed = 0;
+		if(position < swimDistance){
+			scanningDistance = Math.min(forwardTime * swimspeed, swimDistance-position);
+			discardedRunners = (int) (scanningDistance*lloDensitySwim+0.5);
+			maxRunners = (int) (scanningDistance*uloDensitySwim+0.5);
+			maxSpeed = swimspeed;
 		}
-		else if(position > 1500 && position < 41500){
-			scanningDistance = Math.min(forwardTime * bikespeed, 1500-position);	
+		else if(position >= swimDistance && position < bikeSumDistance){
+			scanningDistance = Math.min(forwardTime * bikespeed, bikeSumDistance-position);	
+			discardedRunners = (int) (scanningDistance*lloDensityBike+0.5);
+			maxRunners = (int) (scanningDistance*uloDensityBike+0.5);
+			maxSpeed = bikespeed;
 		}
-		else if(position > 41500 && position < 541500){
-			scanningDistance = Math.min(forwardTime * runspeed, 1500-position);	
+		else if(position >= bikeSumDistance && position < runSumDistance){
+			scanningDistance = Math.min(forwardTime * runspeed, runSumDistance-position);
+			discardedRunners = (int) (scanningDistance*lloDensityRun+0.5);
+			maxRunners = (int) (scanningDistance*uloDensityRun+0.5);
+			maxSpeed = runspeed;
 		}
 		int runnerCounter = 0;
-		double runnerSpeed = 0;
 		for(int counter = 0; counter < runners.length; counter++){
 			if (runners[counter][0] > position && runners[counter][0] < position + scanningDistance){
 				runnerCounter ++;
-				runnerSpeed += runners[counter][1];
 			}
 		}
-		double density = runnerCounter/scanningDistance;
-		double averageSpeed = 10000000;
-		if(runnerCounter != 0){
-			averageSpeed = runnerSpeed/runnerCounter;
+		if(discardedRunners >= Math.min(maxRunners, runnerCounter)){
+			return maxSpeed;
 		}
-		double[]returnThis = new double[2];
-		returnThis[0] = density;
-		returnThis[1] = averageSpeed;
-		return returnThis;
+		double[]speeds = new double[runnerCounter];
+		int runnerCounterCounter = 0;
+		for(int counter = 0; runnerCounterCounter < runnerCounter; counter++){
+			if (runners[counter][0] > position && runners[counter][0] < position + scanningDistance){
+				speeds[runnerCounterCounter] = runners[counter][1];
+				runnerCounterCounter++;
+			}
+		}
+		double[]toBeAveraged = new double[maxRunners-discardedRunners];
+		for(int index = 0; index < maxRunners-discardedRunners; index++){
+			toBeAveraged[index] = maxSpeed;
+		}
+		Arrays.sort(speeds);
+		for(int index = discardedRunners; index < Math.min(runnerCounter, maxRunners); index++){
+			toBeAveraged[index-discardedRunners] = Math.min(speeds[index],maxSpeed);
+		}
+		double speedCounter = 0;
+		for(int index = 0; index < maxRunners-discardedRunners; index++){
+			speedCounter += toBeAveraged[index];
+		}
+		return speedCounter/(maxRunners-discardedRunners);
 	}
 
 	//returns the difference between the number of expected steps with no congestion and the number of steps with it.
