@@ -174,9 +174,10 @@ public class Runner {
 		System.out.println("Group:\t" + classname + "\nSwim speed:\t" + swimspeed + "\nBike speed:\t" + bikespeed + "\nRun speed:\t" + runspeed + "\nPosition:\t" + position);
 	}
 
-	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step, stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1. If finished, returns -1
+	//Calculate how far this will move in the next step, stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1. If finished, returns -1
+	public double calcTravel(double[][]runners){	
 		double travelDistance = -1;
-		if(position <= 1500){
+		if(position < 1500){
 			double speed = Math.min(swimspeed,maxCongestionSpeed(runners));
 			travelDistance = Math.min(step*speed, 1500-position);
 		}
@@ -212,12 +213,14 @@ public class Runner {
 		return travelDistance;
 	}
 	
-	public void timestep(){		//Advances the position of the runner
+	//Advances the position of the runner
+	public void timestep(){		
 		position += nextTravel;
 		stepNumber++;
 	}
 	
-	private double maxCongestionSpeed(double[][]runners){	//calculates the maximum speed a runner can travel given the congestion, relates to average running speed of those in front of them.
+	//calculates the maximum speed a runner can travel given the congestion, relates to average running speed of those in front of them.
+	private double maxCongestionSpeed(double[][]runners){	
 		double[]temp = runnerDensitySpeed(runners);
 		double density = temp[0];
 		double avgvelocity = temp[1];
@@ -252,7 +255,8 @@ public class Runner {
 		return maxSpeed;
 	}
 	
-	public double[] runnerDensitySpeed(double[][]runners){	//returns the density of runners and their average speed in the step seconds in front of the runner. Runners lists all runners' positions and run speeds.
+	//returns the density of runners and their average speed in the step seconds in front of the runner. Runners lists all runners' positions and run speeds.
+	public double[] runnerDensitySpeed(double[][]runners){	
 		double scanningDistance = 0;
 		if(position < 1500){
 			scanningDistance = Math.min(step * swimspeed, 1500-position);	
@@ -282,7 +286,11 @@ public class Runner {
 		return returnThis;
 	}
 
-	public int stepDifference(){				//returns the difference between the number of expected steps with no congestion and the number of steps with it.
+	//returns the difference between the number of expected steps with no congestion and the number of steps with it.
+	public int getStepNumber(){
+		return stepNumber;
+	}
+	public int stepDifference(){				
 		return stepNumber-expectedStepNumber;
 	}
 }

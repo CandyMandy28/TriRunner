@@ -1,19 +1,42 @@
-import java.util.Scanner;
-
 public class CongestionRunner {
 
 	public static void main(String[] args) {
-		Scanner in = new Scanner(System.in);
-		System.out.println("Type in the number of participants: (positive integer)");
-		int participants = in.nextInt();
-		System.out.println("Type in the updating time: (positive integer)");
-		int steplength = in.nextInt();
-		System.out.println("Type in the Group Name: (ATH, CLY, FOPEN, FPREMIER, FPRO, MOPEN, MPREMIER, and MPRO)");
-		String group = in.next();
-		Runner sample = new Runner(group, steplength);
-		System.out.println("Expected Swim speed without congestion:\t" + sample.getSwimSpeed());
-		System.out.println("Expected Bike speed without congestion:\t" + sample.getBikeSpeed());
-		System.out.println("Expected Run  speed without congestion:\t" + sample.getRunSpeed());
+		
+		int time = 0;										//Tracks total time
+		int step = 5;										//How long each time jump is
+		
+		int wave1size = 50;
+		
+		double [][] runners = new double[wave1size][2];			//Array of all runners' position and velocity
+		Runner[]wave1 = new Runner[wave1size];						//Array of first wave of Runners
+		for(int index = 0; index < wave1size; index++) {			//Assigns values for all the things
+			wave1[index] = new Runner("FPRO",step);
+			runners[index][0] = 0;
+			runners[index][1] = 0;
+		}
+		boolean finished = false;							//Tests if everyone finished yet
+		while(!finished){
+			finished = true;
+			double[]moveDist = new double[wave1size];
+			for(int index = 0; index < wave1size; index++) {		//Gets data from every runner
+				moveDist[index] = wave1[index].calcTravel(runners);
+			}
+			for(int index = 0; index < wave1size; index++) {
+				if(wave1[index].position < 51500){
+					wave1[index].timestep();
+					runners[index][0] += moveDist[index];
+					runners[index][1] = moveDist[index]/5;
+					finished = false;
+				}
+			}
+			time += step;
+			
+		}
+		System.out.println(time);
+		for(int index = 0; index < wave1size; index++){
+			System.out.println("Time Difference:\t"+ wave1[index].stepDifference() * 5 + "\nActual Time:\t" + wave1[index].getStepNumber()*5);
+		}
+		
 		
 	}
 
