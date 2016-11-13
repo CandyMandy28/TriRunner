@@ -19,9 +19,9 @@ public class Runner {
 	
 	//ORIGINAL VALUES
 	private double forwardTime = 2;			//How long in the future do runners consider for density
-	private double lloDensityRun = 1.6;		//What Density of people/m do we start getting slowdown (assuming 20 foot wide road)
-	private double lloDensitySwim = 0.8;
-	private double lloDensityBike = 0.8;
+	private double lloDensityRun = 1.5;		//What Density of people/m do we start getting slowdown (assuming 20 foot wide road)
+	private double lloDensitySwim = 0.75;
+	private double lloDensityBike = 0.75;
 	private double uloDensityRun = 6;		//What Density of people/m do can we not traverse (assuming 20 foot wide road)) 
 	private double uloDensitySwim = 3;
 	private double uloDensityBike = 3;
