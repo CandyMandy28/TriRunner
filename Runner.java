@@ -13,17 +13,25 @@ public class Runner {
 	private int t1count;		//How many steps the runner stays at transition 1
 	private int t2count;		//How many steps the runner stays at transition 2
 	
-	
-	
-	
-	private double lloDensityRun = 1.6;	//What Density of people/m do we start getting slowdown (assuming 20 foot wide road)
+	//ORIGINAL VALUES
+	private double forwardTime = 2;			//How long in the future do runners consider for density
+	private double lloDensityRun = 1.6;		//What Density of people/m do we start getting slowdown (assuming 20 foot wide road)
 	private double lloDensitySwim = 0.8;
 	private double lloDensityBike = 0.8;
 	private double uloDensityRun = 6;		//What Density of people/m do can we not traverse (assuming 20 foot wide road)) 
 	private double uloDensitySwim = 3;
 	private double uloDensityBike = 3;
-	private int step;			//Length of time between updates
+	private double step;			//Length of time between updates
 	
+	/* Halved Densitys
+	private double lloDensityRun = 0.8;	//What Density of people/m do we start getting slowdown (assuming 20 foot wide road)
+	private double lloDensitySwim = 0.4;
+	private double lloDensityBike = 0.4;
+	private double uloDensityRun = 3;		//What Density of people/m do can we not traverse (assuming 20 foot wide road)) 
+	private double uloDensitySwim = 1.5;
+	private double uloDensityBike = 1.5;
+	private int step;			//Length of time between updates
+	*/
 	
 	private int stepNumber;
 	private int expectedStepNumber;
@@ -32,11 +40,12 @@ public class Runner {
 
 	Random rand =  new Random();
 	
-	public Runner(String classname, int steplength){	//Initializes all the speed variables and transition times randomly based on class average and standard deviation
+	public Runner(String classname, double steplength){	//Initializes all the speed variables and transition times randomly based on class average and standard deviation
 		
 		double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10;
 		
 		if(classname.equalsIgnoreCase("ATH")){
+			
 			d1 = 1404.9375;
 			d2 = 210.132092;
 			d3 = 697.96875;
@@ -47,6 +56,20 @@ public class Runner {
 			d8 = 110.5202894;
 			d9 = 4645.536875;
 			d10 = 823.6366583;
+			
+			
+			/* NO VARIANCE
+			d1 = 1404.9375;
+			d2 = 0;
+			d3 = 697.96875;
+			d4 = 0;
+			d5 = 6539.03125;
+			d6 = 0;
+			d7 = 270.875;
+			d8 = 0;
+			d9 = 4645.536875;
+			d10 = 0;
+			*/
 		}
 		else if(classname.equalsIgnoreCase("CLY")){
 			d1 = 1537.616667;
@@ -155,7 +178,7 @@ public class Runner {
 		runspeed = 10000 / runtime;
 		step = steplength;
 		
-		expectedStepNumber = t1count + t2count + (int)(1500/swimspeed + 1) + (int)(40000/bikespeed + 1) + (int)(10000/runspeed + 1);
+		expectedStepNumber = t1count + t2count + (int)(1500/(swimspeed*step) + 1) + (int)(40000/(bikespeed*step) + 1) + (int)(10000/(runspeed*step) + 1);
 	}
 
 	public double getBikeSpeed(){
@@ -245,10 +268,10 @@ public class Runner {
 		}
 		else if(position > 1500 && position < 41500){
 			maxSpeed = avgvelocity + 9;
-			if(density < uloDensitySwim && density > lloDensitySwim){
-				maxSpeed = avgvelocity + 9 * Math.pow((uloDensitySwim-density)/(uloDensitySwim-lloDensitySwim),2);
+			if(density < uloDensityBike && density > lloDensityBike){
+				maxSpeed = avgvelocity + 9 * Math.pow((uloDensityBike-density)/(uloDensityBike-lloDensityBike),2);
 			}
-			else if (density >= uloDensitySwim){
+			else if (density >= uloDensityBike){
 				maxSpeed = avgvelocity;
 			}
 		}
@@ -259,13 +282,13 @@ public class Runner {
 	public double[] runnerDensitySpeed(double[][]runners){	
 		double scanningDistance = 0;
 		if(position < 1500){
-			scanningDistance = Math.min(step * swimspeed, 1500-position);	
+			scanningDistance = Math.min(forwardTime * swimspeed, 1500-position);
 		}
 		else if(position > 1500 && position < 41500){
-			scanningDistance = Math.min(step * bikespeed, 1500-position);	
+			scanningDistance = Math.min(forwardTime * bikespeed, 1500-position);	
 		}
 		else if(position > 41500 && position < 541500){
-			scanningDistance = Math.min(step * runspeed, 1500-position);	
+			scanningDistance = Math.min(forwardTime * runspeed, 1500-position);	
 		}
 		int runnerCounter = 0;
 		double runnerSpeed = 0;
