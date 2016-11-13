@@ -1,8 +1,6 @@
 import java.util.Random;
 
 public class Runner {
-<<<<<<< HEAD
-=======
 
 	private String classname;
 	private double swimspeed;
@@ -176,7 +174,7 @@ public class Runner {
 		System.out.println("Group:\t" + classname + "\nSwim speed:\t" + swimspeed + "\nBike speed:\t" + bikespeed + "\nRun speed:\t" + runspeed + "\nPosition:\t" + position);
 	}
 
-	public double calcTravel(double[][]runners){	
+	public double calcTravel(double[][]runners){	//Calculate how far this will move in the next step, stores and returns it. If at a transition, remains stationary but decreases number of the step count by 1. If finished, returns -1
 		double travelDistance = -1;
 		if(position <= 1500){
 			double speed = Math.min(swimspeed,maxCongestionSpeed(runners));
@@ -210,12 +208,11 @@ public class Runner {
 				travelDistance = Math.min(step*speed, 51500-position);
 			}
 		}
-		
+		nextTravel = travelDistance;
 		return travelDistance;
 	}
 	
-	//Advances the position of the runner
-	public void timestep(){		
+	public void timestep(){		//Advances the position of the runner
 		position += nextTravel;
 		stepNumber++;
 	}
@@ -288,5 +285,4 @@ public class Runner {
 	public int stepDifference(){				//returns the difference between the number of expected steps with no congestion and the number of steps with it.
 		return stepNumber-expectedStepNumber;
 	}
-
 }
